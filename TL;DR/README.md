@@ -30,4 +30,5 @@ Another important mention is the fact that if the requested range of messages co
 ## Additional information
 The bot uses HuggingFace's Transformers along with bart model specifically trained for the job, for more information about the model go [here].(https://huggingface.co/lidiya/bart-large-xsum-samsum).
 
+This was my first dive into bots and models or working with this particular library but I am open to any support, ideas where I can improve or features that I can include.Just open an issue or if you have something you believe you can improve open a pull-request.
 
