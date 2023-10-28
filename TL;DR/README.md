@@ -6,8 +6,8 @@ Ever opened a discord channel and felt like in a chat battefield with no context
 Get quick summaries since the last time you were alive in that channel or maybe just the faithful hours you wished to do something productive.
 
 As of right now TL;DR offers two possible ways to request a summary:
-1. !tldr - get the summary since your last message
-2. !tldr <start(hours)> <end(hours)> - get a summary between t-start and t-end
+1. !tldr complete - get the summary since your last message
+2. !tldr tminus <start(hours)> <end(hours)> - get a summary between t-start and t-end
 
 The summary is sent to your dm ,to keep channel uncluttered, along with all relevant information regarding the request.
 
