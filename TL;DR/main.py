@@ -2,6 +2,8 @@ from transformers import pipeline
 from discord.ext import commands
 from dotenv import load_dotenv
 import os, datetime, discord
+import io
+import aiohttp
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -23,11 +25,21 @@ async def on_ready():
 
 
 # dm the user a summary
-async def dm_tldr(member: discord.Member, dm_msg: str):
+async def dm_tldr(member: discord.Member, dm_msg: str, attachments: list[str]):
     try:
         await member.create_dm()
         await member.dm_channel.send(dm_msg)
-    except:
+
+        # the code is commented as it slows down the bot a fair bit
+        """ async with aiohttp.ClientSession() as session:
+            for x in attachments:
+                async with session.get(x.url) as resp:
+                    if resp.status != 200:
+                        pass
+                    data = io.BytesIO(await resp.read())
+                    await member.dm_channel.send(file=discord.File(data))
+            await session.close() """
+    except Exception as e:
         print("Can't DM this user.")
 
 
@@ -40,6 +52,9 @@ async def get_refrence_msgs(
         message = await ctx.fetch_message(message.reference.message_id)
         str_ref = str(message.content) + " " + str_ref
     return str_ref
+
+
+attachments: list[str] = []
 
 
 # creating command group for requesting summaries
@@ -66,6 +81,9 @@ async def complete(ctx):
     convo: str = ""
 
     for msg in msgs:
+        if msg.attachments:
+            attachments.extend(msg.attachments)
+
         # checking if msg has a reference
         if type(msg) == discord.Message and msg.reference is not None:
             temp_msg = await ctx.fetch_message(msg.reference.message_id)
@@ -75,7 +93,6 @@ async def complete(ctx):
                 convo += await get_refrence_msgs(ctx, msg) + "."
         elif type(msg) == discord.Message:
             convo += str(msg.content) + "."
-
     # checking length of the the conversataion as the model is limited at 1024 characters
     while len(convo) > 1024:
         summary += summarizer((convo[:1024]), max_length=200, do_sample=False)[0].get(
@@ -89,12 +106,12 @@ async def complete(ctx):
 
     if len(msgs) > 0:
         dm = f"Server - {ctx.guild}\n \
-            Channel - {ctx.channel}\n \
-            TL;DR from {msgs[0].created_at.strftime('%d-%m-%Y %H:%M')} to {msgs[-1].created_at.strftime('%d-%m-%Y %H:%M')}\n\n \
-            TL;DR\n \
-            {summary}"
+        Channel - {ctx.channel}\n \
+        TL;DR from {msgs[0].created_at.strftime('%d-%m-%Y %H:%M')} to {msgs[-1].created_at.strftime('%d-%m-%Y %H:%M')}\n\n \
+        TL;DR\n \
+        {summary}"
 
-        await dm_tldr(ctx.author, dm)
+        await dm_tldr(ctx.author, dm, attachments)
 
     await ctx.message.delete()  # deleting request after it's processed
 
@@ -126,6 +143,9 @@ async def tminus(ctx, time_range_start: str = None, time_range_end: str = None):
     convo: str = ""
 
     for msg in msgs:
+        if msg.attachments:
+            attachments.extend(msg.attachments)
+
         if type(msg) == discord.Message and msg.reference is not None:
             convo += await get_refrence_msgs(ctx, msg)
             convo += "."
@@ -151,7 +171,7 @@ async def tminus(ctx, time_range_start: str = None, time_range_end: str = None):
             TL;DR\n \
             {summary}"
 
-        await dm_tldr(ctx.author, dm)
+        await dm_tldr(ctx.author, dm, attachments)
 
     await ctx.message.delete()  # deleting request after it's processed
 

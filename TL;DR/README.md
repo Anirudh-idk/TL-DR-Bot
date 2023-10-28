@@ -13,6 +13,8 @@ The summary is sent to your dm ,to keep channel uncluttered, along with all rele
 
 Another important mention is the fact that if the requested range of messages contain a reference to some messages that do not lie in the range they are still included while summarizing to try and preserve context.
 
+The bot also includes the code to take and send attachments as well but is commented as it affects the performance quite a bit.
+It can be used as preferred.
 
 ## usage
 1. Clone this repository or download the zip and extract in your local machine.
